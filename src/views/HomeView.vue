@@ -1,18 +1,23 @@
 <template>
   <div class="home">
-    <img alt="Vue logo" src="../assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <AGVSSettingVue></AGVSSettingVue>
+    <AGVCTableVue :states="agvcStatus"></AGVCTableVue>
   </div>
 </template>
 
 <script>
 // @ is an alias to /src
-import HelloWorld from '@/components/HelloWorld.vue'
 
+import AGVSSettingVue from '@/components/AGVSSetting.vue';
+import AGVCTableVue from '@/components/AGVCTable.vue';
 export default {
   name: 'HomeView',
   components: {
-    HelloWorld
+    AGVSSettingVue, AGVCTableVue
+  },
+  data() {
+    return {
+    }
   }
 }
 </script>
