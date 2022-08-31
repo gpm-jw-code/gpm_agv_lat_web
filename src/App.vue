@@ -8,11 +8,12 @@
       <div class="collapse navbar-collapse" id="navbarID">
         <div class="navbar-nav">
           <a class="nav-link active" aria-current="page" href="/">LAT</a>
+          <a class="nav-link active" aria-current="page" href="/Orders">Orders</a>
         </div>
       </div>
     </div>
   </nav>
-  <router-view />
+  <router-view style="height:100%" />
 </template>
 
 <style>
@@ -22,6 +23,12 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  height: 90%;
+}
+
+html,
+body {
+  height: 100%;
 }
 
 nav {

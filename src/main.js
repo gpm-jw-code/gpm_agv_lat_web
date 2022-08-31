@@ -9,9 +9,13 @@ import 'bootstrap-icons/font/bootstrap-icons.css'
 import ElementPlus from 'element-plus'
 import 'element-plus/dist/index.css'
 import '@/assets/Styles/global-style.css'
+import JsonViewer from 'vue-json-viewer'
+import 'vue-json-viewer/style.css'
+
 const app = createApp(App)
 
 app.use(router);
+app.use(JsonViewer);
 app.use(BootstrapVue3);
 app.use(ElementPlus, { size: 'default', zIndex: 3000 });
 app.mount('#app')

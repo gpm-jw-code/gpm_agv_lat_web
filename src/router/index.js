@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AGVCMap from '@/views/AGVCMap.vue'
+import OrderView from '@/views/OrderView.vue'
 
 const routes = [
   {
@@ -9,9 +10,9 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/about',
-    name: 'about',
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path:'/Orders',
+    name: 'orders',
+    component:OrderView
   },
   {
     path:'/map/:agv_id',

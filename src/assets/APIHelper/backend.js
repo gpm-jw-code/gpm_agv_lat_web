@@ -16,6 +16,11 @@ axios.defaults.baseURL = HostUrl
     return await GetReq('/api/agvc/AgvTypes');
  }
 
+ export async function GetOrderList(){
+   return await GetReq('/api/Orders');
+ }
+
+
  async function GetReq(api){
     var ret= await axios.get(api);
     return ret.data;
