@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AGVCMap from '@/views/AGVCMap.vue'
 import OrderView from '@/views/OrderView.vue'
+import AGVCView from "@/views/AGVCView.vue"
 
 const routes = [
   {
@@ -23,6 +24,10 @@ const routes = [
     path:'/map_all',
     name:'map_all',
     component:AGVCMap
+  },{
+    path:'/agvc',
+    name:'agvc',
+    component:AGVCView
   }
 ]
 

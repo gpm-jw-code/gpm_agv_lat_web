@@ -1,7 +1,7 @@
 .block-item{
     margin:35px 15px;
     padding:15px;
-    border-bottom:1px solid grey ;
+    /* border-bottom:1px solid grey ; */
 }
 
 .block-item h3{

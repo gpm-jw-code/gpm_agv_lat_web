@@ -141,7 +141,8 @@ export default {
 .map-display {
   color: white;
   position: absolute;
-  width: 100%;
+  width: 1600px;
+  margin: 10px;
 }
 .map-display span {
   position: relative;

@@ -12,6 +12,7 @@
 </template>
 
 <script>
+import { GetAGVSTypeName } from '@/assets/EnumsHelper';
 export default {
   props: {
     agvsProps: {
@@ -36,12 +37,7 @@ export default {
       return this.agvsProps.agvsParameters == undefined ? '' : this.agvsProps.agvsParameters.tcpParams.HostIP;
     },
     Spec() {
-      if (this.agvsProps.agvsType == 0)
-        return 'GPM'
-      else if (this.agvsProps.agvsType == 1)
-        return "晶潔能AGVS";
-      else
-        return 'Unknown';
+      return GetAGVSTypeName(this.agvsProps.agvsType);
     }
   }
 }

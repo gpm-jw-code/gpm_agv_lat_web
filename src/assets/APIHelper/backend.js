@@ -7,6 +7,10 @@ axios.defaults.baseURL = HostUrl
     return await GetReq('/api/agvc/states');
  } 
 
+ export async function GetAGVCStateByID(agvc_id){
+   return await GetReq(`/api/agvc/state?agvc_id=${agvc_id}`);
+} 
+
 
  export async function GetAGVSSetting(){
     return await GetReq('/api/agvs/settings');

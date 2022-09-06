@@ -33,8 +33,9 @@
           ></el-progress>
         </template>
       </el-table-column>
-      <el-table-column width="90">
+      <el-table-column width="170">
         <template #default="scope">
+          <el-button @click="ShowAGVCInfoPage(scope.row)">AGV</el-button>
           <el-button @click="ShowMapButtonHandle(scope.row)">MAP</el-button>
         </template>
       </el-table-column>
@@ -44,6 +45,7 @@
 
 <script>
 import { GetAGVCStates } from '@/assets/APIHelper/backend';
+import { GetAGVCTypeName, GetConnectionStateName, GetRunningStateName } from '@/assets/EnumsHelper';
 export default {
 
   data() {
@@ -58,32 +60,20 @@ export default {
   },
   methods: {
     TypeFormatter(row, cell, value, index) {
-      //CONNECTED, CONNECTING, DISCONNECT
-      if (value == 0)
-        return 'GPM推高機'
-      else if (value == 1)
-        return '罡豪潛遁'
-      else
-        return 'Unknown'
+      return GetAGVCTypeName(value);
     },
     ConnectionStateFormatter(row, cell, value, index) {
-      //CONNECTED, CONNECTING, DISCONNECT
-      if (value == 0)
-        return 'Connected'
-      else if (value == 1)
-        return 'Connecting'
-      else
-        return 'Disconnect'
+      return GetConnectionStateName(value);
     },
     RunningStateFormatter(row, cell, value, index) {
       //CONNECTED, CONNECTING, DISCONNECT
-      if (value == 0)
-        return 'Idle'
-      else
-        return 'Running'
+      return GetRunningStateName(value);
     },
     BetteryStateFormatter(row, cell, value, index) {
       return value + " %";
+    },
+    ShowAGVCInfoPage(agv_state) {
+      this.$router.push({ name: 'agvc', query: { agv_id: agv_state.ID } });
     },
     ShowMapButtonHandle(agv_state) {
       console.info(agv_state);

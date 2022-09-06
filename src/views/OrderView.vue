@@ -10,8 +10,13 @@
         </div>
         <el-table row-key="OrderNo" :data="OrderList" highlight-current-row>
           <el-table-column label="NO" prop="OrderNo"></el-table-column>
+          <el-table-column label="任務名" prop="latOrderDetail.taskName"></el-table-column>
           <el-table-column label="訂單狀態" prop="State" :formatter="StateFormatter"></el-table-column>
-          <el-table-column label="訂單需求廠商(派車)" prop="FromAGVS.VenderName"></el-table-column>
+          <el-table-column
+            label="訂單需求廠商(派車)"
+            prop="FromAGVS.agvsType"
+            :formatter="AGVSProviderFormatter"
+          ></el-table-column>
           <el-table-column label="訂單接收時間" prop="RecieveTimeStamp" :formatter="TimeFormatter">
             <template #header="scope">
               訂單接收時間
@@ -65,6 +70,7 @@
 
 <script>
 import { GetOrderList } from '@/assets/APIHelper/backend.js'
+import { GetAGVSTypeName } from '@/assets/EnumsHelper';
 import moment from 'moment';
 export default {
   data() {
@@ -127,6 +133,9 @@ export default {
     TimeFormatter(row, colume, value, index) {
       return moment(value).format('yyyy-MM-DD HH:mm:ss');
     },
+    AGVSProviderFormatter(row, colume, value, index) {
+      return GetAGVSTypeName(value);
+    },
     StateFormatter(row, colume, value, index) {
       if (value == 0)
         return "等待訂單接收";
@@ -142,7 +151,7 @@ export default {
     SelectedOrderTaskData() {
       var order = this.OrderList.find(od => od.OrderNo == this.SelectOrderNO);
       if (order) {
-        return order.TaskDownloadData;
+        return order.latOrderDetail;
       } else {
         return {};
       }
