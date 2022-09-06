@@ -9,8 +9,9 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarID">
         <div class="navbar-nav">
-          <a class="nav-link active" aria-current="page" href="/">LAT</a>
+          <a class="nav-link active" aria-current="page" href="/">Home</a>
           <a class="nav-link active" aria-current="page" href="/Orders">Orders</a>
+          <a class="nav-link active" aria-current="page" href="/agvc">AGVC</a>
         </div>
       </div>
     </div>

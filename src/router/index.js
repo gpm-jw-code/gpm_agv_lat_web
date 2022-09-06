@@ -11,23 +11,23 @@ const routes = [
     component: HomeView
   },
   {
-    path:'/Orders',
+    path: '/Orders',
     name: 'orders',
-    component:OrderView
+    component: OrderView
   },
   {
-    path:'/map/:agv_id',
-    name:'map',
-    component:AGVCMap
+    path: '/map/:agv_id',
+    name: 'map',
+    component: AGVCMap
   },
   {
-    path:'/map_all',
-    name:'map_all',
-    component:AGVCMap
-  },{
-    path:'/agvc',
-    name:'agvc',
-    component:AGVCView
+    path: '/map_all',
+    name: 'map_all',
+    component: AGVCMap
+  }, {
+    path: '/agvc',
+    name: 'agvc',
+    component: AGVCView
   }
 ]
 

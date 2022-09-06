@@ -18,7 +18,7 @@
             :formatter="AGVSProviderFormatter"
           ></el-table-column>
           <el-table-column label="訂單接收時間" prop="RecieveTimeStamp" :formatter="TimeFormatter">
-            <template #header="scope">
+            <template #header>
               訂單接收時間
               <el-popover content="LAT平台接收到派車任務的時間戳" placement="top-start">
                 <template #reference>
@@ -27,7 +27,19 @@
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column label="執行訂單的AGVC" prop="ExecuteingAGVC"></el-table-column>
+          <el-table-column label="執行訂單的AGVC" prop="ExecuteingAGVC">
+            <template #default="scope">
+              <!-- {{ExecuteAGVCInfoFormatter(scope.row.ExecuteingAGVC)}} -->
+              <div class="w-100">
+                <el-tag
+                  class="w-100"
+                  style="cursor:pointer"
+                  effect="dark"
+                  @click="AgvcTagClickHandle(scope.row.ExecuteingAGVC.agvcID)"
+                >{{ExecuteAGVCInfoFormatter(scope.row.ExecuteingAGVC)}}</el-tag>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column label="訂單完成時間" prop="CompleteTimeStamp" :formatter="TimeFormatter"></el-table-column>
           <el-table-column fixed="right">
             <template #default="scope">
@@ -50,8 +62,8 @@
           <template #header>
             <div class="card-header d-flex flex-row w-100">
               <span class="text-start flex-fill">Order-{{SelectOrderNO}}</span>
-              <el-button round type="danger" size="small">1</el-button>
-              <el-button round type="danger" size="small">2</el-button>
+              <!-- <el-button round type="danger" size="small">1</el-button>
+              <el-button round type="danger" size="small">2</el-button>-->
             </div>
           </template>
           <json-viewer
@@ -69,8 +81,8 @@
           <template #header>
             <div class="card-header d-flex flex-row w-100">
               <span class="text-start flex-fill">Order-{{SelectOrderNO}}</span>
-              <el-button round type="danger" size="small">1</el-button>
-              <el-button round type="danger" size="small">2</el-button>
+              <!-- <el-button round type="danger" size="small">1</el-button>
+              <el-button round type="danger" size="small">2</el-button>-->
             </div>
           </template>
           <json-viewer
@@ -90,7 +102,7 @@
 
 <script>
 import { GetOrderList } from '@/assets/APIHelper/backend.js'
-import { GetAGVSTypeName } from '@/assets/EnumsHelper';
+import { GetAGVSTypeName, GetAGVCTypeName } from '@/assets/EnumsHelper';
 import moment from 'moment';
 export default {
   data() {
@@ -165,6 +177,15 @@ export default {
         return "訂單已完成";
       else
         return "Unknown";
+    },
+    ExecuteAGVCInfoFormatter(ExecuteingAGVC) {
+      if (ExecuteingAGVC == undefined)
+        return "";
+      return `${ExecuteingAGVC.agvcID}(${GetAGVCTypeName(ExecuteingAGVC.agvcType)})`;
+    },
+    AgvcTagClickHandle(agvcID) {
+      this.$router.push({ name: 'agvc', query: { agv_id: agvcID } });
+
     }
   },
   computed: {
