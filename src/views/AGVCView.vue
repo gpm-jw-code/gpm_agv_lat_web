@@ -1,7 +1,7 @@
 <template>
   <div class="agvc-view">
     <!-- {{agv_type}} / {{agv_id}} / {{agv_eqName}} /{{agv_battery}} -->
-    <div class="card infos d-flex flex-row">
+    <div class="infos d-flex flex-row border-bottom bg-light">
       <el-card class="info-block">
         <template #header>
           <h3>ID</h3>
@@ -32,7 +32,7 @@
       </el-card>
     </div>
 
-    <el-card class="my-3 mx-3">
+    <el-card class="my-3 mx-4">
       <h3>Orders</h3>
       <el-table :data="agv_orderList" row-key="OrderNo" height="450">
         <el-table-column label="任務名" prop="latOrderDetail.taskName"></el-table-column>
@@ -97,13 +97,14 @@ export default {
 
 <style scoped lang="sass">
 .agvc-view
+    margin-top: 20px
     div
         padding: 20px
     .infos
         .info-block
             width: 330px
             height: 200px
-            margin: 10px
+            margin: auto 4px
             padding: 1rem
             h3
                 font-weight: bolder

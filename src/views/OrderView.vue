@@ -38,14 +38,34 @@
       </div>
 
       <!-- <transition name="el-zoom-in-top"> -->
-      <div v-show="show_task_data" class="block-item task-data-view-container bg-light">
+      <div v-show="show_task_data" class="block-item h-100 task-data-view-container border-left">
         <div class="d-flex flex-row">
           <el-button circle @click="show_task_data=false">
             <i class="bi bi-chevron-double-right"></i>
           </el-button>
           <h3 class="mx-2">Task Data</h3>
         </div>
-        <el-card>
+        <span class="title">LAT Format</span>
+        <el-card style="height:400px;overflow-y:scroll">
+          <template #header>
+            <div class="card-header d-flex flex-row w-100">
+              <span class="text-start flex-fill">Order-{{SelectOrderNO}}</span>
+              <el-button round type="danger" size="small">1</el-button>
+              <el-button round type="danger" size="small">2</el-button>
+            </div>
+          </template>
+          <json-viewer
+            class="text-start"
+            :value="SelectedOrderTaskData_LAT"
+            :expand-depth="4"
+            copyable
+            boxed
+            expanded
+          ></json-viewer>
+        </el-card>
+
+        <span class="title">From AGVS</span>
+        <el-card style="height:400px;overflow-y:scroll">
           <template #header>
             <div class="card-header d-flex flex-row w-100">
               <span class="text-start flex-fill">Order-{{SelectOrderNO}}</span>
@@ -151,6 +171,14 @@ export default {
     SelectedOrderTaskData() {
       var order = this.OrderList.find(od => od.OrderNo == this.SelectOrderNO);
       if (order) {
+        return order.TaskDownloadData;
+      } else {
+        return {};
+      }
+    },
+    SelectedOrderTaskData_LAT() {
+      var order = this.OrderList.find(od => od.OrderNo == this.SelectOrderNO);
+      if (order) {
         return order.latOrderDetail;
       } else {
         return {};
@@ -167,7 +195,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .task-data-view-container {
   width: 30%;
 }
@@ -175,7 +203,17 @@ export default {
 .table-mini {
   width: 70%;
 }
+
 .table-full {
   width: 100%;
+}
+
+.task-data-view-container {
+  .title {
+    text-align: left;
+    width: 100%;
+    float: left;
+    margin-top: 10px;
+  }
 }
 </style>

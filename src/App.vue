@@ -1,5 +1,7 @@
 <template>
-  <nav class="navbar navbar-expand-sm navbar-dark bg-primary">
+  <el-backtop :right="40" :bottom="40"></el-backtop>
+
+  <nav class="navbar navbar-expand-sm navbar-dark bg-primary fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">GPM</a>
       <button class="navbar-toggler" type="button" v-b-toggle.navbarID>
@@ -13,7 +15,7 @@
       </div>
     </div>
   </nav>
-  <router-view style="height:100%" />
+  <router-view style="height:100%;padding-top: 30px;" />
 </template>
 
 <style>
