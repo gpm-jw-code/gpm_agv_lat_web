@@ -1,91 +1,108 @@
 <template>
-  <div class="agvc-view" v-loading="loading">
+  <div class="agvc-view bg-light" v-loading="loading">
     <!-- {{agv_type}} / {{agv_id}} / {{agv_eqName}} /{{agv_battery}} -->
-    <div class="mx-2 d-flex flex-row border-bottom">
-      <span class="mx-3 py-2" style="font-size:20px;">
-        <i class="bi bi-car-front px-2"></i>AGV 選擇
-      </span>
-      <el-form-item label prop class="flex-fill py-1">
-        <el-select size="large" v-model="selectedAgvcID" @change="ChangeAGVC">
-          <el-option
-            v-for="agv in agvcList"
-            :key="agv.Key"
-            :label="`${agv.Key}(${agv.Value})`"
-            :value="agv.Key"
-          ></el-option>
-        </el-select>
-      </el-form-item>
-      <el-button
-        class="mx-3"
-        type
-        size="default"
-        @click="()=>{ $router.push({ name: 'map', params: { agv_id: selectedAgvcID } });}"
-      >MAP</el-button>
-    </div>
-    <div class="infos d-flex flex-row row border-bottom bg-light">
-      <el-card class="info-block">
-        <h3>ID</h3>
-        <div class="content">{{agv_id}}</div>
-      </el-card>
-      <el-card class="info-block">
-        <h3>名稱</h3>
-        <div class="content">{{agv_eqName}}</div>
-      </el-card>
-      <el-card class="info-block">
-        <h3>廠牌</h3>
-        <div class="content">{{agv_type}}</div>
-      </el-card>
-      <el-card class="info-block">
-        <h3>電量</h3>
-        <div class="content">
-          <el-progress :percentage="agv_battery" type="circle" :width="60"></el-progress>
-        </div>
-      </el-card>
-    </div>
-
-    <el-card class="my-3 mx-2">
-      <div class="order-card-title my-3">
-        <h3 class="text-start">Orders</h3>
-        <el-button type size="default" @click="()=>{$router.push('/Orders')}">檢視所有訂單</el-button>
+    <side-menu
+      ref="side_menu"
+      :listData="agvcList"
+      @collapseChange="(collapse)=>{menu_show=!collapse}"
+    ></side-menu>
+    <div class="w-100" v-bind:class="menu_show?'menu-show':'menu-hide'">
+      <div class="w-100 mx-2 py-2 text-end border-bottom">
+        <el-button
+          class="mx-1"
+          type
+          size="default"
+          @click="()=>{ $router.push({ name: 'map', params: { agv_id: selectedAgvcID } });}"
+        >MAP</el-button>
+        <el-button class="mx-1" type size="default" @click="ShowNativeInfo">原廠資訊</el-button>
       </div>
-      <el-table :data="agv_orderList" row-key="OrderNo" height="450">
-        <el-table-column label="任務名" prop="latOrderDetail.taskName"></el-table-column>
-        <el-table-column label="派車廠商" prop="FromAGVS.agvsType" :formatter="AGVSTypeFormat"></el-table-column>
-        <el-table-column label="接收時間" prop="RecieveTimeStamp"></el-table-column>
-        <el-table-column label="完成時間" prop="CompleteTimeStamp"></el-table-column>
-        <el-table-column label="執行狀態" prop="State" :formatter="OrderStateFormat"></el-table-column>
-      </el-table>
-    </el-card>
+      <div class="infos d-flex flex-row row border-bottom">
+        <div class="info-block">
+          <h5>ID</h5>
+          <div class="content">{{agv_id}}</div>
+        </div>
+        <div class="info-block">
+          <h5>名稱</h5>
+          <div class="content">{{agv_eqName}}</div>
+        </div>
+        <div class="info-block">
+          <h5>廠牌</h5>
+          <div class="content">{{agv_type}}</div>
+        </div>
+        <div class="info-block">
+          <h5>連線狀態</h5>
+          <div class="content">{{agv_ConnectedState}}</div>
+        </div>
+        <div class="info-block">
+          <h5>訂單狀態</h5>
+          <div class="content">{{agv_RunningState}}</div>
+        </div>
+        <div class="info-block">
+          <h5>電量</h5>
+          <div class="content">
+            <el-progress :percentage="agv_battery" type="circle" :width="60"></el-progress>
+          </div>
+        </div>
+      </div>
+      <div class="my-2 mx-2 order-block">
+        <div class="order-card-title">
+          <h5>Orders</h5>
+          <el-button type size="default" @click="()=>{$router.push('/Orders')}">檢視所有訂單</el-button>
+        </div>
+        <el-table :data="agv_orderList" row-key="OrderNo" height="430" border>
+          <el-table-column label="任務名" prop="latOrderDetail.taskName"></el-table-column>
+          <el-table-column label="派車廠商" prop="FromAGVS.agvsType" :formatter="AGVSTypeFormat"></el-table-column>
+          <el-table-column label="接收時間" prop="RecieveTimeStamp" :formatter="TimeFormatter"></el-table-column>
+          <el-table-column label="完成時間" prop="CompleteTimeStamp" :formatter="TimeFormatter"></el-table-column>
+          <el-table-column label="執行狀態" prop="State" :formatter="OrderStateFormat"></el-table-column>
+        </el-table>
+      </div>
+    </div>
+    <div
+      class="foot py-2"
+      v-bind:class="menu_show?'menu-show':'menu-hide'"
+    >?sdasasasasasasasasasasas</div>
+    <native-info-viewer :agv_id="selectedAgvcID" :agv_name="agv_eqName" ref="native_info_viewer"></native-info-viewer>
   </div>
 </template>
 
 <script>
 import { GetAGVCStateByID, GetAGVCList } from "@/assets/APIHelper/backend.js";
 import { GetAGVCTypeName, GetAGVSTypeName, GetConnectionStateName, GetRunningStateName, GetOrderStateName } from '@/assets/EnumsHelper';
+import AGVCNativeInfoViewVue from "@/components/AGVCNativeInfoView.vue";
+import AGVCViewSideMenuVue from "@/components/AGVCViewSideMenu.vue";
+import moment from 'moment';
 
 export default {
+  components: {
+    'native-info-viewer': AGVCNativeInfoViewVue,
+    'side-menu': AGVCViewSideMenuVue
+  },
   data() {
     return {
       loading: true,
       id: 1,
       agvcData: null,
       agvcList: [],
-      selectedAgvcID: ""
+      selectedAgvcID: "",
+      menu_show: true
     }
   },
+
   methods: {
+
     OrderStateFormat(row, col, value, index) {
       return GetOrderStateName(value);
     },
     AGVSTypeFormat(row, col, value, index) {
       return GetAGVSTypeName(value);
     },
-    ChangeAGVC(selected_id) {
-      this.loading = true;
-      this.$router.push({ name: 'agvc', query: { agv_id: selected_id } });
-      setTimeout(() => {
-        this.loading = false;
-      }, 400);
+    TimeFormatter(row, colume, value, index) {
+      return moment(value).format('yyyy-MM-DD HH:mm:ss');
+    },
+
+    ShowNativeInfo() {
+      this.$refs.native_info_viewer.Open();
     }
   },
   mounted() {
@@ -96,7 +113,6 @@ export default {
       }
       );
       GetAGVCStateByID(this.agv_id).then(value => this.agvcData = value);
-
       setInterval(async () => {
         this.loading = false;
         this.agvcData = await GetAGVCStateByID(this.agv_id);
@@ -105,6 +121,7 @@ export default {
 
   },
   computed: {
+
     agv_id() {
       var query = this.$route.query;
       if (query.agv_id)
@@ -118,7 +135,13 @@ export default {
     },
     /**種類 */
     agv_type() {
-      return this.agvcData ? GetAGVCTypeName(this.agvcData.agvcType) : "KN";
+      return this.agvcData ? GetAGVCTypeName(this.agvcData.agvcType) : "-";
+    },
+    agv_RunningState() {
+      return this.agvcData ? this.agvcData.agvcStates.States.RunningState : "-";
+    },
+    agv_ConnectedState() {
+      return this.agvcData ? this.agvcData.agvcStates.States.ConnectionState : "-";
     },
     /**電量 */
     agv_battery() {
@@ -141,7 +164,11 @@ export default {
 <style scoped lang="scss">
 .agvc-view {
   margin-top: 40px;
-  h3 {
+
+  .menu-show {
+    padding-left: 250px;
+  }
+  h5 {
     font-weight: bolder;
     width: 100%;
     text-align: left;
@@ -150,26 +177,39 @@ export default {
   }
   .infos {
     padding: 20px;
-
-    .info-block {
-      width: 300px;
-      height: 190px;
-      margin: auto 4px;
-      padding: 1rem;
-
-      .content {
-        padding-top: 10px;
-        font-size: 30px;
-      }
+  }
+  .info-block,
+  .order-block {
+    width: 200px;
+    height: 140px;
+    margin: auto 4px;
+    padding: 1rem;
+    border-radius: 10px;
+    border: 1px solid rgb(218, 218, 218);
+    .content {
+      padding-top: 10px;
+      font-size: 20px;
     }
   }
-
+  .order-block {
+    width: 100%;
+    height: 100%;
+  }
   .order-card-title {
     .el-button {
-      top: -60px;
+      top: -50px;
       position: relative;
       float: right;
     }
+  }
+
+  .foot {
+    position: fixed;
+    bottom: 0;
+    z-index: 3009;
+    width: 100%;
+    background-color: rgb(146, 146, 146);
+    color: white;
   }
 }
 

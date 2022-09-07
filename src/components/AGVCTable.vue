@@ -1,5 +1,5 @@
 <template>
-  <div class="agvc-table block-item">
+  <div class="agvc-table block-item border-bottom">
     <h3>AGVC 列表</h3>
     <el-table
       :data="agvcStatus"
@@ -8,17 +8,21 @@
       v-loading="tableLoading"
     >
       <el-table-column label="ID" prop="ID"></el-table-column>
+      <el-table-column label="AGVC Name" prop="EQName"></el-table-column>
       <el-table-column label="Connection">
         <template #default="scope">
           <div>{{scope.row.agvcParameters.tcpParams.HostIP}}:{{scope.row.agvcParameters.tcpParams.HostPort}}</div>
         </template>
       </el-table-column>
       <el-table-column label="Type" prop="agvcType" :formatter="TypeFormatter"></el-table-column>
-      <el-table-column
-        label="連線狀態"
-        prop="agvcStates.States.EConnectionState"
-        :formatter="ConnectionStateFormatter"
-      ></el-table-column>
+      <el-table-column label="連線狀態" prop="agvcStates.States.EConnectionState">
+        <template #default="scope">
+          <el-tag
+            effect="plain"
+            :type="scope.row.agvcStates.States.EConnectionState==0?'success':'warning'"
+          >{{ConnectionStateFormatter(scope.row.agvcStates.States.EConnectionState)}}</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column
         label="工作狀態"
         prop="agvcStates.States.ERunningState"
@@ -33,9 +37,9 @@
           ></el-progress>
         </template>
       </el-table-column>
-      <el-table-column width="170">
+      <el-table-column width="200">
         <template #default="scope">
-          <el-button @click="ShowAGVCInfoPage(scope.row)">AGV</el-button>
+          <el-button @click="ShowAGVCInfoPage(scope.row)">詳細內容</el-button>
           <el-button @click="ShowMapButtonHandle(scope.row)">MAP</el-button>
         </template>
       </el-table-column>
@@ -62,7 +66,7 @@ export default {
     TypeFormatter(row, cell, value, index) {
       return GetAGVCTypeName(value);
     },
-    ConnectionStateFormatter(row, cell, value, index) {
+    ConnectionStateFormatter(value) {
       return GetConnectionStateName(value);
     },
     RunningStateFormatter(row, cell, value, index) {

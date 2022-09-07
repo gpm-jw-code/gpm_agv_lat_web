@@ -1,7 +1,7 @@
 <template>
   <el-backtop :right="40" :bottom="40"></el-backtop>
 
-  <nav class="navbar navbar-expand-sm navbar-dark bg-primary fixed-top">
+  <nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="#">GPM</a>
       <button class="navbar-toggler" type="button" v-b-toggle.navbarID>
@@ -11,7 +11,7 @@
         <div class="navbar-nav">
           <a class="nav-link active" aria-current="page" href="/">Home</a>
           <a class="nav-link active" aria-current="page" href="/Orders">Orders</a>
-          <a class="nav-link active" aria-current="page" href="/agvc">AGVC</a>
+          <a class="nav-link active" aria-current="page" href="/agvc">車庫</a>
         </div>
       </div>
     </div>

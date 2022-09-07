@@ -1,5 +1,5 @@
 <template>
-  <div class="agvs-setting block-item">
+  <div class="agvs-setting block-item border-bottom">
     <h3>AGVS 設定</h3>
     <AGVSItemVue :agvsProps="agvsSettings"></AGVSItemVue>
   </div>

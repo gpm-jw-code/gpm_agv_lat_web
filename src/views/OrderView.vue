@@ -9,14 +9,20 @@
           <h3>Order List</h3>
         </div>
         <el-table row-key="OrderNo" :data="OrderList" highlight-current-row>
-          <el-table-column label="NO" prop="OrderNo"></el-table-column>
-          <el-table-column label="任務名" prop="latOrderDetail.taskName"></el-table-column>
+          <el-table-column label="NO" prop="OrderNo" :width="60" fixed="left"></el-table-column>
+          <el-table-column label="任務名" prop="latOrderDetail.taskName" :width="120" fixed="left"></el-table-column>
           <el-table-column label="訂單狀態" prop="State" :formatter="StateFormatter"></el-table-column>
-          <el-table-column
-            label="訂單需求廠商(派車)"
-            prop="FromAGVS.agvsType"
-            :formatter="AGVSProviderFormatter"
-          ></el-table-column>
+          <el-table-column label="訂單需求廠商(派車)" prop="FromAGVS.agvsType">
+            <template #default="scope">
+              <el-tag
+                v-if="scope.row.FromAGVS!=undefined"
+                style="cursor:pointer"
+                type="danger"
+                size="normal"
+                effect="plain"
+              >{{ AGVSProviderFormatter(scope.row.FromAGVS.agvsType)}}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="訂單接收時間" prop="RecieveTimeStamp" :formatter="TimeFormatter">
             <template #header>
               訂單接收時間
@@ -34,7 +40,7 @@
                 <el-tag
                   class="w-100"
                   style="cursor:pointer"
-                  effect="dark"
+                  effect="plain"
                   @click="AgvcTagClickHandle(scope.row.ExecuteingAGVC.agvcID)"
                 >{{ExecuteAGVCInfoFormatter(scope.row.ExecuteingAGVC)}}</el-tag>
               </div>
@@ -165,7 +171,7 @@ export default {
     TimeFormatter(row, colume, value, index) {
       return moment(value).format('yyyy-MM-DD HH:mm:ss');
     },
-    AGVSProviderFormatter(row, colume, value, index) {
+    AGVSProviderFormatter(value) {
       return GetAGVSTypeName(value);
     },
     StateFormatter(row, colume, value, index) {
