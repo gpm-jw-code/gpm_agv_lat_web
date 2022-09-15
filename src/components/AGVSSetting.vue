@@ -14,7 +14,10 @@ export default {
   },
   data() {
     return {
-      agvsSettings: {}
+      agvsSettings: {
+        VenderName: "",
+        ConnectionString: ""
+      }
     }
   },
   mounted() {

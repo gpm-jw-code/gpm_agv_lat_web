@@ -33,6 +33,11 @@
           <h5>連線狀態</h5>
           <div class="content">{{agv_ConnectedState}}</div>
         </div>
+
+        <div class="info-block">
+          <h5>上線狀態</h5>
+          <div class="content">{{agv_OnlineState}}</div>
+        </div>
         <div class="info-block">
           <h5>訂單狀態</h5>
           <div class="content">{{agv_RunningState}}</div>
@@ -59,6 +64,7 @@
       </div>
     </div>
     <div
+      v-show="false"
       class="foot py-2"
       v-bind:class="menu_show?'menu-show':'menu-hide'"
     >?sdasasasasasasasasasasas</div>
@@ -136,6 +142,9 @@ export default {
     /**種類 */
     agv_type() {
       return this.agvcData ? GetAGVCTypeName(this.agvcData.agvcType) : "-";
+    },
+    agv_OnlineState() {
+      return this.agvcData ? this.agvcData.agvcStates.States.OnlineState : "-";
     },
     agv_RunningState() {
       return this.agvcData ? this.agvcData.agvcStates.States.RunningState : "-";

@@ -23,6 +23,7 @@
           >{{ConnectionStateFormatter(scope.row.agvcStates.States.EConnectionState)}}</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="上線狀態" prop="agvcStates.States.OnlineState"></el-table-column>
       <el-table-column
         label="工作狀態"
         prop="agvcStates.States.ERunningState"

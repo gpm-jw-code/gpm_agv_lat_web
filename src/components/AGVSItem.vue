@@ -1,45 +1,34 @@
 <template>
   <div class="agvs-item d-flex flex-row my-2 mx-2">
-    <span>SPEC</span>
-    <div>
-      <el-tag round effect="dark" size="large">{{Spec}}</el-tag>
+    <div class="d-flex flex-row">
+      <span>Provider</span>
+      <div class="mx-3">
+        <el-tag round effect="dark" size="large">{{agvsProps.VenderName}}</el-tag>
+      </div>
     </div>
-    <span>IP</span>
-    <div>
-      <el-tag round effect="dark" size="large">{{HostIP}}</el-tag>
+    <div class="d-flex flex-row">
+      <span>Connection</span>
+      <div class="mx-3">
+        <el-tag round effect="dark" size="large">{{agvsProps.ConnectionString}}</el-tag>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { GetAGVSTypeName } from '@/assets/EnumsHelper';
 export default {
   props: {
     agvsProps: {
       type: Object,
       default() {
         return {
-          agvsType: 0,
-          agvsParameters: {
-            tcpParams: {
-              HostIP: "192.168.0.107",
-              HostPort: 5500
-            }
-          },
-          connected: false
+          VenderName: "",
+          ConnectionString: ""
         }
       }
     },
 
   },
-  computed: {
-    HostIP() {
-      return this.agvsProps.agvsParameters == undefined ? '' : this.agvsProps.agvsParameters.tcpParams.HostIP;
-    },
-    Spec() {
-      return GetAGVSTypeName(this.agvsProps.agvsType);
-    }
-  }
 }
 </script>
 
