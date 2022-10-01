@@ -1,5 +1,6 @@
 import axios from 'axios';
-export var HostUrl = 'https://localhost:7279';
+export var HostUrl = 'http://localhost:5123';
+
 axios.defaults.baseURL = HostUrl
 
 
@@ -26,6 +27,15 @@ export async function GetAGVCTypes() {
 
 export async function GetOrderList() {
    return await GetReq('/api/Orders');
+}
+
+export async function GetAGVCNativeDatas(eqName) {
+   return await GetReq(`/api/agvc/GetNativeData?eqName=${eqName}`);
+}
+
+
+export async function GetMapInfos() {
+   return await GetReq(`/api/Map/GetMapInfos`);
 }
 
 

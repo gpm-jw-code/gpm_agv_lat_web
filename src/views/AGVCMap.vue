@@ -73,6 +73,11 @@
         >({{data.MapStates.globalCoordinate.x}},{{data.MapStates.globalCoordinate.y}},{{data.MapStates.globalCoordinate.r}})</div>
       </div>
     </div>
+
+    <div class="map-info d-flex flex-row">
+      <span>當前地圖:</span>
+      <div>??</div>
+    </div>
   </div>
 </template>
 
@@ -179,5 +184,17 @@ export default {
 
 .popover-content span {
   width: 70px;
+}
+
+.map-info {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+  background-color: black;
+  opacity: 0.85;
+  padding: 10px;
+  font-size: 20px;
+  left: 0;
 }
 </style>

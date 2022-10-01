@@ -34,7 +34,7 @@
           <el-progress
             type="circle"
             :width="45"
-            :percentage="scope.row.agvcStates.BetteryState.remaining"
+            :percentage="scope.row.agvcStates.BetteryState.remaining*100"
           ></el-progress>
         </template>
       </el-table-column>
@@ -82,7 +82,7 @@ export default {
     },
     ShowMapButtonHandle(agv_state) {
       console.info(agv_state);
-      this.$router.push({ name: 'map', params: { agv_id: agv_state.ID } });
+      this.$router.push({ name: 'map_view', params: { agv_id: agv_state.ID } });
     }
   },
   mounted() {

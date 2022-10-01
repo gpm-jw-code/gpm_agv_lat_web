@@ -9,14 +9,31 @@
       </button>
       <div class="collapse navbar-collapse" id="navbarID">
         <div class="navbar-nav">
-          <a class="nav-link active" aria-current="page" href="/">Home</a>
-          <a class="nav-link active" aria-current="page" href="/Orders">Orders</a>
-          <a class="nav-link active" aria-current="page" href="/agvc">車庫</a>
+          <a class="nav-link active" aria-current="page" href="/">
+            <i class="bi bi-house"></i> Home
+          </a>
+          <a class="nav-link active" aria-current="page" href="/Orders">
+            <i class="bi bi-list-ol"></i> Orders
+          </a>
+          <a class="nav-link active" aria-current="page" href="/agvc">
+            <i class="bi bi-car-front"></i> 車庫
+          </a>
+          <a class="nav-link active" aria-current="page" href="/map_view">
+            <i class="bi bi-pin-map-fill"></i> MAP
+          </a>
+          <a class="nav-link active" aria-current="page" href="/log">
+            <i class="bi bi-card-text"></i> Log
+          </a>
+          <a class="nav-link active" aria-current="page" href="/agvs">AGVS</a>
         </div>
       </div>
     </div>
   </nav>
-  <router-view style="height:100%;padding-top: 30px;" />
+  <router-view style="height:100%;padding-top: 30px;" v-slot="{ Component }">
+    <keep-alive>
+      <component :is="Component" />
+    </keep-alive>
+  </router-view>
 </template>
 
 <style>
@@ -26,7 +43,7 @@
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  height: 90%;
+  height: 100%;
 }
 
 html,

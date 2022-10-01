@@ -7,14 +7,21 @@
       @collapseChange="(collapse)=>{menu_show=!collapse}"
     ></side-menu>
     <div class="w-100" v-bind:class="menu_show?'menu-show':'menu-hide'">
-      <div class="w-100 mx-2 py-2 text-end border-bottom">
+      <div class="actions-button-group w-100 mx-2 py-2 text-end border-bottom">
         <el-button
           class="mx-1"
           type
           size="default"
-          @click="()=>{ $router.push({ name: 'map', params: { agv_id: selectedAgvcID } });}"
-        >MAP</el-button>
-        <el-button class="mx-1" type size="default" @click="ShowNativeInfo">原廠資訊</el-button>
+          @click="()=>{ $router.push({ name: 'map_view', params: { agv_id: selectedAgvcID } });}"
+        >
+          <i class="bi bi-pin-map-fill"></i>MAP
+        </el-button>
+        <el-button class="mx-1" type size="default" @click="ShowNativeInfo">
+          <i class="bi bi-info-circle-fill"></i>原廠資訊
+        </el-button>
+        <el-button class="mx-1" type size="default" @click="()=>{$refs.agvs_side.Show()}">
+          <i class="bi bi-minecart"></i>派車出任務
+        </el-button>
       </div>
       <div class="infos d-flex flex-row row border-bottom">
         <div class="info-block">
@@ -41,6 +48,26 @@
         <div class="info-block">
           <h5>訂單狀態</h5>
           <div class="content">{{agv_RunningState}}</div>
+        </div>
+        <div class="info-block alarm-block">
+          <h5>警報狀態</h5>
+          <div class="content">
+            <div v-if="NormalNow">
+              <el-tag effect="plain" size="large" type="success">Normal</el-tag>
+            </div>
+            <div v-else class="text-start">
+              <el-tag effect="plain" size="large" v-show="FatalNow" type="danger">Fatal</el-tag>
+              <el-tag effect="plain" size="large" v-show="ErrorNow" type="danger">Error</el-tag>
+              <el-tag effect="plain" size="large" v-show="WarningNow" type="warning">Warning</el-tag>
+              <el-tag effect="plain" size="large" v-show="NoticeNow" type="warning">Notice</el-tag>
+            </div>
+          </div>
+        </div>
+        <div class="info-block">
+          <h5>所在站點</h5>
+          <div class="content">
+            <u>{{agv_currentStation}}</u>
+          </div>
         </div>
         <div class="info-block">
           <h5>電量</h5>
@@ -69,20 +96,22 @@
       v-bind:class="menu_show?'menu-show':'menu-hide'"
     >?sdasasasasasasasasasasas</div>
     <native-info-viewer :agv_id="selectedAgvcID" :agv_name="agv_eqName" ref="native_info_viewer"></native-info-viewer>
+    <agvs-drawer :Default_AGV_Name="agv_eqName" ref="agvs_side"></agvs-drawer>
   </div>
 </template>
 
 <script>
-import { GetAGVCStateByID, GetAGVCList } from "@/assets/APIHelper/backend.js";
+import { GetAGVCStateByID, GetAGVCList, GetMapInfos } from "@/assets/APIHelper/backend.js";
 import { GetAGVCTypeName, GetAGVSTypeName, GetConnectionStateName, GetRunningStateName, GetOrderStateName } from '@/assets/EnumsHelper';
 import AGVCNativeInfoViewVue from "@/components/AGVCNativeInfoView.vue";
 import AGVCViewSideMenuVue from "@/components/AGVCViewSideMenu.vue";
 import moment from 'moment';
-
+import AGVCDispatcher_SideDrawerVue from "@/components/AGVSModule/AGVCDispatcher_SideDrawer.vue";
 export default {
   components: {
     'native-info-viewer': AGVCNativeInfoViewVue,
-    'side-menu': AGVCViewSideMenuVue
+    'side-menu': AGVCViewSideMenuVue,
+    'agvs-drawer': AGVCDispatcher_SideDrawerVue
   },
   data() {
     return {
@@ -91,7 +120,8 @@ export default {
       agvcData: null,
       agvcList: [],
       selectedAgvcID: "",
-      menu_show: true
+      menu_show: true,
+      map_data: {}
     }
   },
 
@@ -113,11 +143,13 @@ export default {
   },
   mounted() {
     setTimeout(() => {
+      GetMapInfos().then(value => this.map_data = value);//
       GetAGVCList().then(value => {
         this.agvcList = value;
         this.selectedAgvcID = this.agv_id;
       }
       );
+
       GetAGVCStateByID(this.agv_id).then(value => this.agvcData = value);
       setInterval(async () => {
         this.loading = false;
@@ -127,7 +159,6 @@ export default {
 
   },
   computed: {
-
     agv_id() {
       var query = this.$route.query;
       if (query.agv_id)
@@ -152,9 +183,17 @@ export default {
     agv_ConnectedState() {
       return this.agvcData ? this.agvcData.agvcStates.States.ConnectionState : "-";
     },
+    agv_currentStation() {
+      var stationID = this.agvcData ? this.agvcData.agvcStates.MapStates.currentStationID : "Unknown";
+      if (stationID == 'Navigating') {
+        var navigateInfo = this.agvcData.agvcStates.MapStates.navigationState;
+        return `前往 ${navigateInfo.targetStationID}`;
+      } else
+        return stationID;
+    },
     /**電量 */
     agv_battery() {
-      return this.agvcData ? this.agvcData.agvcStates.BetteryState.remaining : -1;
+      return this.agvcData ? (this.agvcData.agvcStates.BetteryState.remaining * 100).toFixed(1) : -1;
     },
     agv_eqName() {
       return this.agvcData ? this.agvcData.EQName : -1;
@@ -165,6 +204,34 @@ export default {
       if (!this.agvcData.orderList_LAT)
         return [];
       return this.agvcData.orderList_LAT;
+    },
+    agv_alarm_state() {
+      return this.agvcData ? this.agvcData.agvcStates.AlarmState : {};
+    },
+    FatalNow() {
+      if (this.agv_alarm_state.NewestFatals == undefined)
+        return false;
+      return this.agv_alarm_state.NewestFatals.length != 0;
+    },
+    ErrorNow() {
+
+      if (this.agv_alarm_state.NewestErrors == undefined)
+        return false;
+      return this.agv_alarm_state.NewestErrors.length != 0;
+    },
+    WarningNow() {
+
+      if (this.agv_alarm_state.NewestWarnings == undefined)
+        return false;
+      return this.agv_alarm_state.NewestWarnings.length != 0;
+    },
+    NoticeNow() {
+      if (this.agv_alarm_state.NewestNotices == undefined)
+        return false;
+      return this.agv_alarm_state.NewestNotices.length != 0;
+    },
+    NormalNow() {
+      return !this.FatalNow && !this.ErrorNow && !this.WarningNow && !this.NoticeNow;
     }
   }
 }
@@ -176,6 +243,11 @@ export default {
 
   .menu-show {
     padding-left: 250px;
+  }
+  .actions-button-group {
+    i {
+      margin-right: 5px;
+    }
   }
   h5 {
     font-weight: bolder;
@@ -191,7 +263,7 @@ export default {
   .order-block {
     width: 200px;
     height: 140px;
-    margin: auto 4px;
+    margin: 2px 4px;
     padding: 1rem;
     border-radius: 10px;
     border: 1px solid rgb(218, 218, 218);
@@ -227,7 +299,7 @@ export default {
     .infos {
       .info-block {
         width: 100%;
-        margin: 4px auto;
+        margin: 6px auto;
       }
     }
   }

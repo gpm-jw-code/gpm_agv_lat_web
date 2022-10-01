@@ -41,8 +41,8 @@
                   class="w-100"
                   style="cursor:pointer"
                   effect="plain"
-                  @click="AgvcTagClickHandle(scope.row.ExecuteingAGVC.agvcID)"
-                >{{ExecuteAGVCInfoFormatter(scope.row.ExecuteingAGVC)}}</el-tag>
+                  @click="AgvcTagClickHandle(scope.row.ExecuteingAGVCInfo.agvcID)"
+                >{{ExecuteAGVCInfoFormatter(scope.row.ExecuteingAGVCInfo)}}</el-tag>
               </div>
             </template>
           </el-table-column>
@@ -184,10 +184,10 @@ export default {
       else
         return "Unknown";
     },
-    ExecuteAGVCInfoFormatter(ExecuteingAGVC) {
-      if (ExecuteingAGVC == undefined)
+    ExecuteAGVCInfoFormatter(ExecuteingAGVCInfo) {
+      if (ExecuteingAGVCInfo == undefined)
         return "";
-      return `${ExecuteingAGVC.agvcID}(${GetAGVCTypeName(ExecuteingAGVC.agvcType)})`;
+      return `${ExecuteingAGVCInfo.agvcID}(${GetAGVCTypeName(ExecuteingAGVCInfo.agvcType)})`;
     },
     AgvcTagClickHandle(agvcID) {
       this.$router.push({ name: 'agvc', query: { agv_id: agvcID } });
