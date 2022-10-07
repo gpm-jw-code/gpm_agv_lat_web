@@ -1,5 +1,5 @@
 <template>
-  <el-drawer direction="rtl" size="20%" v-model="show">
+  <el-drawer direction="rtl" size="30%" v-model="show">
     <agvc-dispatcher :Default_AGV_Name="Default_AGV_Name"></agvc-dispatcher>
   </el-drawer>
 </template>

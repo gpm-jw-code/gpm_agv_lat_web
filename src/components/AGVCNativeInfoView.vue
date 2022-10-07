@@ -2,21 +2,17 @@
   <el-drawer v-model="draw_show" :direction="direction" size="50%">
     <template #header="{titleId}">
       <div class="text-start" :id="titleId">
-        <h3>{{agv_name}}({{agv_id}})</h3>
+        <h3>{{agv_name}}({{agv_id}}) 原廠資訊</h3>
+        <div class="d-flex flex-row w-100">
+          <b-button :disabled="pause" @click="pause=true" variant="danger">暫停更新</b-button>
+          <b-button class="mx-3" :disabled="!pause" @click="pause=false" variant="success">Resume</b-button>
+        </div>
       </div>
     </template>
-    <template #default>
-      <div class="bg-light h-100">
-        <json-viewer
-          class="text-start"
-          :value="nativeData"
-          :expand-depth="4"
-          copyable
-          boxed
-          expanded
-        ></json-viewer>
-      </div>
-    </template>
+
+    <div class="bg-light h-100">
+      <json-viewer class="text-start" :value="nativeData" :expand-depth="4" copyable boxed expanded></json-viewer>
+    </div>
   </el-drawer>
 </template>
 
@@ -37,16 +33,20 @@ export default {
     return {
       draw_show: false,
       direction: "rtl",
-      nativeData: {}
+      nativeData: {},
+      pause: false
     }
   },
   methods: {
     Open() {
 
       setInterval(() => {
-        GetAGVCNativeDatas(this.agv_name).then(agvcNativeData => {
-          this.nativeData = agvcNativeData;
-        });
+        if (!this.pause) {
+
+          GetAGVCNativeDatas(this.agv_name).then(agvcNativeData => {
+            this.nativeData = agvcNativeData;
+          });
+        }
       }, 1000);
 
       this.direction = window.innerWidth > 500 ? 'rtl' : 'btt';

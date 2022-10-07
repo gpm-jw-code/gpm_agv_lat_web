@@ -64,6 +64,12 @@
           </div>
         </div>
         <div class="info-block">
+          <h5>當前地圖</h5>
+          <div class="content">
+            <u>{{agv_currentMapName}}</u>
+          </div>
+        </div>
+        <div class="info-block">
           <h5>所在站點</h5>
           <div class="content">
             <u>{{agv_currentStation}}</u>
@@ -183,6 +189,9 @@ export default {
     agv_ConnectedState() {
       return this.agvcData ? this.agvcData.agvcStates.States.ConnectionState : "-";
     },
+    agv_currentMapName() {
+      return this.agvcData ? this.agvcData.agvcStates.MapStates.currentMapInfo.name : "-";
+    },
     agv_currentStation() {
       var stationID = this.agvcData ? this.agvcData.agvcStates.MapStates.currentStationID : "Unknown";
       if (stationID == 'Navigating') {
@@ -270,6 +279,9 @@ export default {
     .content {
       padding-top: 10px;
       font-size: 20px;
+
+      word-wrap: break-word;
+      white-space: pre-wrap;
     }
   }
   .order-block {
