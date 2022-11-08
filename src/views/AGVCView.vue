@@ -1,13 +1,22 @@
 <template>
-  <div class="agvc-view bg-light" v-loading="loading">
-    <!-- {{agv_type}} / {{agv_id}} / {{agv_eqName}} /{{agv_battery}} -->
+  <div class="agvc-view bg-light">
+    <b-alert v-model="backend_disconnected" variant="danger">與後端服務器連線發生異常!</b-alert>
     <side-menu
       ref="side_menu"
       :listData="agvcList"
       @collapseChange="(collapse)=>{menu_show=!collapse}"
     ></side-menu>
+    <b-alert v-model="showDismissibleAlert" variant="danger">AGVC-{{agv_eqName}}尚未完成連線!</b-alert>
     <div class="w-100" v-bind:class="menu_show?'menu-show':'menu-hide'">
       <div class="actions-button-group w-100 mx-2 py-2 text-end border-bottom">
+        <el-button
+          v-if="agv_RunningState=='RUNNING'"
+          class="mx-1 float-start"
+          type="danger"
+          size="default"
+          @click="CancelNavigating()"
+        >取消導航</el-button>
+
         <el-button
           class="mx-1"
           type
@@ -20,7 +29,7 @@
           <i class="bi bi-info-circle-fill"></i>原廠資訊
         </el-button>
         <el-button class="mx-1" type size="default" @click="()=>{$refs.agvs_side.Show()}">
-          <i class="bi bi-minecart"></i>派車出任務
+          <i class="bi bi-minecart"></i>導航
         </el-button>
       </div>
       <div class="infos d-flex flex-row row border-bottom">
@@ -78,7 +87,14 @@
         <div class="info-block">
           <h5>電量</h5>
           <div class="content">
-            <el-progress :percentage="agv_battery" type="circle" :width="60"></el-progress>
+            <el-progress
+              :color="battery_color"
+              :percentage="agv_battery"
+              type="line"
+              :stroke-width="22"
+              :width="60"
+            ></el-progress>
+            <el-tag v-if="agv_charging" effect="plain" type="danger">充電中</el-tag>
           </div>
         </div>
       </div>
@@ -102,12 +118,13 @@
       v-bind:class="menu_show?'menu-show':'menu-hide'"
     >?sdasasasasasasasasasasas</div>
     <native-info-viewer :agv_id="selectedAgvcID" :agv_name="agv_eqName" ref="native_info_viewer"></native-info-viewer>
-    <agvs-drawer :Default_AGV_Name="agv_eqName" ref="agvs_side"></agvs-drawer>
+    <agvs-drawer :Default_AGV_Name="agv_eqName" :stations="stations" ref="agvs_side"></agvs-drawer>
   </div>
 </template>
 
 <script>
 import { GetAGVCStateByID, GetAGVCList, GetMapInfos } from "@/assets/APIHelper/backend.js";
+import { AGVC_REST } from '@/assets/APIHelper/kingGallentEmu.js'
 import { GetAGVCTypeName, GetAGVSTypeName, GetConnectionStateName, GetRunningStateName, GetOrderStateName } from '@/assets/EnumsHelper';
 import AGVCNativeInfoViewVue from "@/components/AGVCNativeInfoView.vue";
 import AGVCViewSideMenuVue from "@/components/AGVCViewSideMenu.vue";
@@ -127,7 +144,9 @@ export default {
       agvcList: [],
       selectedAgvcID: "",
       menu_show: true,
-      map_data: {}
+      map_data: {},
+      backend_disconnected: false,
+      agvclist_fetch_timer: null
     }
   },
 
@@ -145,24 +164,45 @@ export default {
 
     ShowNativeInfo() {
       this.$refs.native_info_viewer.Open();
+    },
+    async CancelNavigating() {
+      var ret = await AGVC_REST(this.agvcData.EQName)
+    },
+    DownloadAgvcListTimer() {
+      this.agvclist_fetch_timer = setInterval(() => {
+        GetAGVCList().then(value => {
+          this.agvcList = value;
+        })
+      }, 1000);
     }
   },
   mounted() {
     setTimeout(() => {
-      GetMapInfos().then(value => this.map_data = value);//
-      GetAGVCList().then(value => {
-        this.agvcList = value;
-        this.selectedAgvcID = this.agv_id;
-      }
-      );
+      GetMapInfos().then(value => {
+        this.map_data = value;
 
-      GetAGVCStateByID(this.agv_id).then(value => this.agvcData = value);
-      setInterval(async () => {
-        this.loading = false;
-        this.agvcData = await GetAGVCStateByID(this.agv_id);
-      }, 1000);
+
+        GetAGVCList().then(value => {
+          this.agvcList = value;
+          this.selectedAgvcID = this.agv_id;
+          this.DownloadAgvcListTimer();
+        })
+
+        GetAGVCStateByID(this.agv_id).then(value => this.agvcData = value);
+        setInterval(async () => {
+          this.loading = false;
+          this.agvcData = await GetAGVCStateByID(this.agv_id);
+        }, 1000);
+      }).catch(err => {
+        this.backend_disconnected = true;
+      });
+
+
     }, 400);
 
+  },
+  unmounted() {
+    clearInterval(this.agvclist_fetch_timer);
   },
   computed: {
     agv_id() {
@@ -175,6 +215,9 @@ export default {
         else
           return "??";
       }
+    },
+    showDismissibleAlert() {
+      return this.agv_ConnectedState == "CONNECTING";
     },
     /**種類 */
     agv_type() {
@@ -202,7 +245,20 @@ export default {
     },
     /**電量 */
     agv_battery() {
-      return this.agvcData ? (this.agvcData.agvcStates.BetteryState.remaining * 100).toFixed(1) : -1;
+      return this.agvcData ? Number.parseInt((this.agvcData.agvcStates.BetteryState.remaining * 100).toFixed(0)) : -1;
+    },
+    agv_charging() {
+      return this.agvcData ? this.agvcData.agvcStates.BetteryState.charging : false;
+    },
+    battery_color() {
+      if (this.agv_battery > 70)
+        return 'green'
+      else if (this.agv_battery > 50)
+        return 'rgb(76,199,45)'
+      else if (this.agv_battery > 20)
+        return 'orange'
+      else
+        return 'red'
     },
     agv_eqName() {
       return this.agvcData ? this.agvcData.EQName : -1;
@@ -212,7 +268,7 @@ export default {
         return [];
       if (!this.agvcData.orderList_LAT)
         return [];
-      return this.agvcData.orderList_LAT;
+      return this.agvcData.orderList_LAT.reverse();
     },
     agv_alarm_state() {
       return this.agvcData ? this.agvcData.agvcStates.AlarmState : {};
@@ -241,6 +297,9 @@ export default {
     },
     NormalNow() {
       return !this.FatalNow && !this.ErrorNow && !this.WarningNow && !this.NoticeNow;
+    },
+    stations() {
+      return this.agvcData ? this.agvcData.agvcStates.MapStates.currentMapInfo.station_id_list : [];
     }
   }
 }

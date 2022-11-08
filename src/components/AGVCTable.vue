@@ -23,7 +23,13 @@
           >{{ConnectionStateFormatter(scope.row.agvcStates.States.EConnectionState)}}</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="上線狀態" prop="agvcStates.States.OnlineState"></el-table-column>
+      <el-table-column label="上線狀態">
+        <template #default="scope">
+          <span
+            :class="OnlineStateClassName(scope.row.agvcStates.States.OnlineState)"
+          >{{scope.row.agvcStates.States.OnlineState}}</span>
+        </template>
+      </el-table-column>
       <el-table-column
         label="工作狀態"
         prop="agvcStates.States.ERunningState"
@@ -31,11 +37,14 @@
       ></el-table-column>
       <el-table-column label="電量">
         <template #default="scope">
-          <el-progress
-            type="circle"
-            :width="45"
-            :percentage="scope.row.agvcStates.BetteryState.remaining*100"
-          ></el-progress>
+          <div style="width:140px">
+            <el-progress
+              type="line"
+              :width="45"
+              :stroke-width="12"
+              :percentage="Number.parseInt((scope.row.agvcStates.BetteryState.remaining*100).toFixed(0))"
+            ></el-progress>
+          </div>
         </template>
       </el-table-column>
       <el-table-column width="200">
@@ -64,6 +73,12 @@ export default {
     }
   },
   methods: {
+    OnlineStateClassName(online_state) {
+      if (online_state.toUpperCase() != 'ONLINE')
+        return 'danger';
+      else
+        return '';
+    },
     TypeFormatter(row, cell, value, index) {
       return GetAGVCTypeName(value);
     },
@@ -96,5 +111,10 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss" scoped>
+.agvc-table {
+  .danger {
+    color: red;
+  }
+}
 </style>

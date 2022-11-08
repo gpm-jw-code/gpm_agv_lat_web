@@ -21,7 +21,7 @@
           <a class="nav-link active" aria-current="page" href="/map_view">
             <i class="bi bi-pin-map-fill"></i> MAP
           </a>
-          <a class="nav-link active" aria-current="page" href="/log">
+          <a class="nav-link active" aria-current="page" href="/logview">
             <i class="bi bi-card-text"></i> Log
           </a>
           <a class="nav-link active" aria-current="page" href="/agvs">AGVS</a>

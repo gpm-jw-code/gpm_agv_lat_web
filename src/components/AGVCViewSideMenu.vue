@@ -1,5 +1,9 @@
 <template>
-  <div class="agvc-side-menu h-100" v-bind:class="isCollapse? 'hidding':''">
+  <div
+    class="agvc-side-menu h-100"
+    v-bind:class="isCollapse? 'hidding':''"
+    v-loading.fullscreen.lock="full_screen_loading"
+  >
     <div class="toggle" v-bind:class="isCollapse?'hidding':''">
       <span v-if="isCollapse" class="mx-3 py-2" @click="Show()">
         <i class="bi bi-list"></i>
@@ -39,6 +43,8 @@
                 @click="ChangeAGVC(agv.Key)"
                 v-bind:class="agv.Key==selectedAgvcID?'a-active':'a-inactive' "
               >
+                <i v-if="!agv.Value.Connected" class="bi bi-exclamation-lg" style="color:red"></i>
+                <i v-else class="bi bi-check" style="color:lime"></i>
                 <i class="bi bi-car-front"></i>
                 {{agv.Value.EQName}} | ({{agv.Value.Type}})
               </a>
@@ -66,7 +72,8 @@ export default {
     return {
       isCollapse: false,
       position: 'left',
-      selectedAgvcID: ''
+      selectedAgvcID: '',
+      full_screen_loading: false
     }
   },
   methods: {
@@ -82,11 +89,11 @@ export default {
       return this.isCollapse;
     },
     ChangeAGVC(selected_id) {
-      this.loading = true;
+      this.full_screen_loading = true;
       this.selectedAgvcID = selected_id;
       this.$router.push({ name: 'agvc', query: { agv_id: selected_id } });
       setTimeout(() => {
-        this.loading = false;
+        this.full_screen_loading = false;
       }, 400);
     },
   },

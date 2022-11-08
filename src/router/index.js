@@ -36,7 +36,7 @@ const routes = [
     component: AGVCView
   },
   {
-    path: '/log',
+    path: '/logview',
     name: 'log',
     component: LogView
   },

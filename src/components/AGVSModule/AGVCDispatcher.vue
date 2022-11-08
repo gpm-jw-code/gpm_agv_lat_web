@@ -7,19 +7,27 @@
         </el-select>
       </el-form-item>
       <el-form-item label="EQ Name">
-        <el-input v-model="EQName"></el-input>
+        <!-- <el-input v-model="EQName"></el-input> -->
+        <el-select v-model="EQName" placeholder="選擇AGV">
+          <el-option v-for="agvc in agvc_eq_names" :key="agvc" :value="agvc"></el-option>
+        </el-select>
       </el-form-item>
       <!-- <el-form-item label="SSID">
         <el-input v-model="SID"></el-input>
       </el-form-item>-->
       <el-form-item label="目標站點">
         <div class="d-flex flex-row">
-          <el-input v-model="first_station"></el-input>
+          <el-select v-model="first_station" placeholder="選擇站點">
+            <el-option v-for="station in stations" :key="station" :value="station"></el-option>
+          </el-select>
           <el-button @click="AddStation">Add</el-button>
         </div>
         <div v-for="station in addtions_stations" :key="station.index">
           <div class="d-flex flex-row">
-            <el-input v-model="station.name" placeholder="輸入站點名稱 ex:LM1"></el-input>
+            <el-select v-model="station.name" placeholder="選擇站點">
+              <el-option v-for="station in stations" :key="station" :value="station"></el-option>
+            </el-select>
+
             <el-button plain type="danger" @click="DeleteStation(station.index)">Delete</el-button>
           </div>
         </div>
@@ -35,6 +43,7 @@
 
 <script>
 import axios from 'axios';
+import { CreateOrderTaskLink } from '@/assets/APIHelper/kingGallentEmu'
 
 export default {
   props: {
@@ -42,6 +51,18 @@ export default {
       type: String,
       default: "AGV_002"
     },
+    agvc_eq_names: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
+    stations: {
+      type: Array,
+      default() {
+        return []
+      }
+    }
   },
   watch: {
     Default_AGV_Name: {
@@ -54,6 +75,7 @@ export default {
   data() {
     return {
       selectedAgvsType: "KingGallent",
+      selectedAgvcName: "",
       EQName: "AGV_002",
       SID: "001:001:001",
       agvsTypes: [
@@ -88,8 +110,7 @@ export default {
         Stations: stations
       }
       console.info(data);
-      var url = `http://127.0.0.1:5000/api/KingGallentAGVSEmulator/CreateOrderTaskLink?SID=${this.SID}&EQName=${this.EQName}`;
-      var ret = await axios.post(url, data).catch(er => {
+      var ret = await CreateOrderTaskLink(this.SID, this.EQName, data).catch(er => {
         this.$notify({
           title: 'AGVS 派車',
           message: '發生錯誤:' + er.message,

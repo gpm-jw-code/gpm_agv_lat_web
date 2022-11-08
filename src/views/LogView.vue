@@ -22,10 +22,22 @@ export default {
   methods: {
     WebsocketConnect() {
       var ws = new WebSocket(this.wsHost + "/messageHsLog");
-      ws.onopen = () => console.info('log ws connected');
+      ws.onopen = () => {
+        this.$notify.success({
+          title: 'Websocekt',
+          message: 'Log Websocekt Connected',
+          duration: '1000',
+          position: 'top-right',
+          showClose: 'true',
+        });
+
+      };
+
       ws.onmessage = (event) => {
         this.WsDataHandle(JSON.parse(event.data))
       };
+      ws.onclose = (ws, ev) => alert(ev)
+      ws.onerror = (ws, ev) => alert(ev)
     },
     WsDataHandle(logItem) {
       if (this.logItemList.length > 100) {

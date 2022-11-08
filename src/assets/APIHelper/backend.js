@@ -38,6 +38,9 @@ export async function GetMapInfos() {
    return await GetReq(`/api/Map/GetMapInfos`);
 }
 
+export async function CancelNavigating(EqName) {
+
+}
 
 async function GetReq(api) {
    var ret = await axios.get(api);

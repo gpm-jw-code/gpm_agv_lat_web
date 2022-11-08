@@ -18,9 +18,13 @@
       <map-component :map_info="mapInfo"></map-component>
     </div>
 
-    <agvc-dispatcher-side-drawer Default_AGV_Name="AGV_001" ref="agvc_dispatcher"></agvc-dispatcher-side-drawer>
+    <agvc-dispatcher-side-drawer
+      :stations="stationsInSelectedMap"
+      Default_AGV_Name="AGV_001"
+      ref="agvc_dispatcher"
+    ></agvc-dispatcher-side-drawer>
     <div class="open-agvc-dispatchcer-button">
-      <el-button size="large" circle @click="$refs.agvc_dispatcher.Show()">派</el-button>
+      <el-button :disabled="selectedMapName==''" size="large" circle @click="OpenAGVCDispacher()">派</el-button>
     </div>
   </div>
 </template>
@@ -36,7 +40,8 @@ export default {
   data() {
     return {
       mapInfos: [],
-      selectedMapName: ""
+      selectedMapName: "",
+      stationsInSelectedMap: []
     }
   },
   computed: {
@@ -48,6 +53,12 @@ export default {
   mounted() {
     GetMapInfos().then(mapinfos => this.mapInfos = mapinfos)
   },
+  methods: {
+    OpenAGVCDispacher() {
+      this.stationsInSelectedMap = this.mapInfo.station_id_list;
+      this.$refs.agvc_dispatcher.Show();
+    }
+  }
 }
 </script>
 
