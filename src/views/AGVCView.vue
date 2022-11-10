@@ -9,6 +9,7 @@
     <b-alert v-model="showDismissibleAlert" variant="danger">AGVC-{{agv_eqName}}尚未完成連線!</b-alert>
     <div class="w-100" v-bind:class="menu_show?'menu-show':'menu-hide'">
       <div class="actions-button-group w-100 mx-2 py-2 text-end border-bottom">
+        <i class="bi bi-car-front float-start" style="font-size:1.5rem"></i>
         <el-button
           v-if="agv_RunningState=='RUNNING'"
           class="mx-1 float-start"
@@ -47,12 +48,17 @@
         </div>
         <div class="info-block">
           <h5>連線狀態</h5>
-          <div class="content">{{agv_ConnectedState}}</div>
+          <div class="content" v-bind:class="ConnectedStateCss">{{agv_ConnectedState}}</div>
         </div>
 
-        <div class="info-block">
+        <div class="info-block" v-loading="onlineStateLoading">
           <h5>上線狀態</h5>
-          <div class="content">{{agv_OnlineState}}</div>
+          <div class="content">
+            <div v-bind:class="OnlineStateStateCss">{{agv_OnlineState}}</div>
+            <el-button
+              @click="OnlineStateSwitch()"
+            >切換為 {{agv_OnlineState=='ONLINE'?'OFFLINE':'ONLINE'}}</el-button>
+          </div>
         </div>
         <div class="info-block">
           <h5>訂單狀態</h5>
@@ -93,7 +99,10 @@
               type="line"
               :stroke-width="22"
               :width="60"
-            ></el-progress>
+              :text-inside="true"
+            >
+              <span>{{agv_battery}}%</span>
+            </el-progress>
             <el-tag v-if="agv_charging" effect="plain" type="danger">充電中</el-tag>
           </div>
         </div>
@@ -109,6 +118,11 @@
           <el-table-column label="接收時間" prop="RecieveTimeStamp" :formatter="TimeFormatter"></el-table-column>
           <el-table-column label="完成時間" prop="CompleteTimeStamp" :formatter="TimeFormatter"></el-table-column>
           <el-table-column label="執行狀態" prop="State" :formatter="OrderStateFormat"></el-table-column>
+          <el-table-column label>
+            <template #default="scope">
+              <el-button>手動完成任務</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
     </div>
@@ -123,13 +137,15 @@
 </template>
 
 <script>
-import { GetAGVCStateByID, GetAGVCList, GetMapInfos } from "@/assets/APIHelper/backend.js";
+import { GetAGVCStateByID, GetAGVCList, GetMapInfos, OnlineStateSwitch } from "@/assets/APIHelper/backend.js";
 import { AGVC_REST } from '@/assets/APIHelper/kingGallentEmu.js'
 import { GetAGVCTypeName, GetAGVSTypeName, GetConnectionStateName, GetRunningStateName, GetOrderStateName } from '@/assets/EnumsHelper';
 import AGVCNativeInfoViewVue from "@/components/AGVCNativeInfoView.vue";
 import AGVCViewSideMenuVue from "@/components/AGVCViewSideMenu.vue";
 import moment from 'moment';
 import AGVCDispatcher_SideDrawerVue from "@/components/AGVSModule/AGVCDispatcher_SideDrawer.vue";
+import { ElNotification, ElMessageBox } from 'element-plus'
+
 export default {
   components: {
     'native-info-viewer': AGVCNativeInfoViewVue,
@@ -146,7 +162,9 @@ export default {
       menu_show: true,
       map_data: {},
       backend_disconnected: false,
-      agvclist_fetch_timer: null
+      agvclist_fetch_timer: null,
+      onlineStateLoading: false,
+      currentStation: 316
     }
   },
 
@@ -174,6 +192,45 @@ export default {
           this.agvcList = value;
         })
       }, 1000);
+    },
+    async OnlineStateSwitch() {
+      var modeToSwitch = this.agv_OnlineState == 'ONLINE' ? 0 : 1;
+
+      ElMessageBox.prompt('目前站點?', 'Station ID', {
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Cancel',
+        inputValue: this.currentStation
+      }).then(({ value }) => {
+        this.currentStation = value;
+        this.onlineStateLoading = true;
+        OnlineStateSwitch(this.agvcData.EQName, modeToSwitch, value).then((mode) => {
+          if (mode != modeToSwitch) {
+            ElNotification({
+              title: 'ONLINE STATE CHANGE',
+              message: `AGVC ${modeToSwitch == 0 ? 'Offline' : 'Online'} 失敗`,
+              type: 'error',
+            })
+          } else {
+            ElNotification({
+              title: 'ONLINE STATE CHANGE',
+              message: `AGVC ${modeToSwitch == 0 ? 'Offline' : 'Online'} 成功`,
+              type: 'success',
+            })
+          }
+          this.onlineStateLoading = false;
+
+        }).catch(er => {
+          this.onlineStateLoading = false;
+          ElNotification({
+            title: 'ONLINE STATE CHANGE',
+            message: `AGVC ${modeToSwitch == 0 ? 'Offline' : 'Online'} 失敗|${er.toString()}`,
+            type: 'error',
+          })
+        });
+
+      })
+
+
     }
   },
   mounted() {
@@ -226,11 +283,24 @@ export default {
     agv_OnlineState() {
       return this.agvcData ? this.agvcData.agvcStates.States.OnlineState : "-";
     },
+    OnlineStateStateCss() {
+      if (this.agv_OnlineState == 'ONLINE')
+        return 'normal'
+      else
+        return 'error'
+    },
     agv_RunningState() {
       return this.agvcData ? this.agvcData.agvcStates.States.RunningState : "-";
     },
     agv_ConnectedState() {
       return this.agvcData ? this.agvcData.agvcStates.States.ConnectionState : "-";
+    },
+    ConnectedStateCss() {
+
+      if (this.agv_ConnectedState == "CONNECTED")
+        return 'normal'
+      else
+        return 'error'
     },
     agv_currentMapName() {
       return this.agvcData ? this.agvcData.agvcStates.MapStates.currentMapInfo.name : "-";
@@ -362,6 +432,17 @@ export default {
     width: 100%;
     background-color: rgb(146, 146, 146);
     color: white;
+  }
+
+  .normal {
+    color: green;
+  }
+  .warning {
+    color: orange;
+  }
+
+  .error {
+    color: red;
   }
 }
 

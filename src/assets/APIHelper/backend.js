@@ -42,6 +42,12 @@ export async function CancelNavigating(EqName) {
 
 }
 
+export async function OnlineStateSwitch(eqName, onlineState, currentStation) {
+   var ret = await axios.post(`/api/AGVC/OnlineStateSwitch?eqName=${eqName}&onlineMode=${onlineState}&currentStation=${currentStation}`);
+   return ret.data;
+}
+
+
 async function GetReq(api) {
    var ret = await axios.get(api);
    return ret.data;

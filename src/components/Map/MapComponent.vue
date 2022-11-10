@@ -194,7 +194,7 @@ export default {
       var navigationState = this.agvc_location[agvc_name].navigationState;
       if (navigationState.IsNavigating) {
 
-        var paths = navigationState.pathStations.join("->");
+        var paths = navigationState.pathStations == null ? "??" : navigationState.pathStations.join("->");
         return `目標站點:${navigationState.targetStationID}| 路徑:${paths}`;
       } else {
 

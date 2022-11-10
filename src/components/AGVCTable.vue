@@ -42,8 +42,11 @@
               type="line"
               :width="45"
               :stroke-width="12"
+              :text-inside="true"
               :percentage="Number.parseInt((scope.row.agvcStates.BetteryState.remaining*100).toFixed(0))"
-            ></el-progress>
+            >
+              <span>{{Number.parseInt((scope.row.agvcStates.BetteryState.remaining*100).toFixed(0))}}%</span>
+            </el-progress>
           </div>
         </template>
       </el-table-column>
